@@ -5,8 +5,7 @@ Over the past 10-15 years text mining has seen massive expansion both in practic
 
 we show how extracting user sentiment by text mining posts from several popular gaming forums can be used to identify user experience problems and issues that can adversely effect the enjoyment and gaming experience for the customers. The users posts are preprocessed and parsed, we label the posts as negative, positive or neutral in terms of sentiment. We then identify key areas for game play improvement based on the frequency counts of keywords and phrases used by the forum members.
 
-> Bose, S.: RSentiment: A Tool to Extract Meaningful Insights from Textual Reviews, pp. 259–
-268. Springer Singapore (2017)
+> Bose, S.: RSentiment: A Tool to Extract Meaningful Insights from Textual Reviews, pp. 259–268. Springer Singapore (2017)
 
 > Feinerer, I., Hornik, K., Meyer, D.: Text mining infrastructure in r. Journal of Statistical Software
 25(1), 1–54 (2008), https://www.jstatsoft.org/index.php/jss/article/view/v025i05
