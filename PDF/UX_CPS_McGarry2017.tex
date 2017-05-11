@@ -1,0 +1,285 @@
+% UX_CPS_McGarry2017.tex
+\documentclass{svproc}
+\usepackage[hidelinks]{hyperref}
+\usepackage{url}
+\usepackage{times,fancyhdr,epsfig,subfigure,rotating}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{caption}
+\usepackage{amsmath}
+\usepackage{algorithmicx}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+%\makeatletter
+%\def\BState{\State\hskip-\ALG@thistlm}
+%\makeatother
+
+%\usepackage{lineno,hyperref}
+\def\UrlFont{\rmfamily}
+
+\begin{document}
+\mainmatter              % start of a contribution
+\title{Computational methods for text mining user posts on a popular gaming forum for identifying user experience issues.}
+\titlerunning{Text mining}  % abbreviated title (for running head)
+
+\author{Ken McGarry\inst{1} and Sharon McDonald\inst{2} }
+\authorrunning{Ken McGarry} % abbreviated author list (for running head)
+\tocauthor{Ken McGarry and Sharon McDonald} 
+\institute{School of Pharmacy and Pharmaceutical Sciences, \\Faculty of Health Sciences and Wellbeing, \\University of Sunderland, City Campus, UK. \\ \email{ken.mcgarry@sunderland.ac.uk}
+\and
+School of Computing, \\Faculty of Computing, \\University of Sunderland, St Peters Campus, UK. \\}
+
+
+\maketitle              % typeset the title of the contribution
+
+\begin{abstract}
+The advent of the social web such as twitter, facebook and the numerous social forums have provided a rich source of data representing human beliefs, social interactions and opinions that can be analysed. In this paper we show how extracting user sentiment by text mining posts from popular gaming forums can be used to identify user experience problems and issues that can adversely effect the enjoyment and gaming experience for the customers. The users posts are downloaded, preprocessed and parsed, we label the posts as negative, positive or neutral in terms of sentiment. We then identify key areas for game play improvement based on the frequency counts of keywords and key phrases used by the fora members. Furthermore, computational models based on complex network theory can rank the issues and provide knowledge about the relationships between them.
+\keywords{text mining, usability, games industry, graph theory}
+\end{abstract}
+
+
+\section{Introduction}
+The computer gaming industry is a highly profitable business and in fact sales of computer games exceeds the revenues of the movie making industry, one estimate placed the gaming industry at \$86 billion with Hollywood at \$36 billion \cite{UKIE2016}.  Many popular games have user forums where players can post messages to each other and to the designers of their games. The majority of posts are requests to fellow players for help in solving difficult puzzles at various levels of gameplay or requests to the software developers for particular features they desire or features they find irksome. 
+
+Over the past 10-15 years text mining has seen massive expansion both in practical applications and research theory \cite{Hearst99}. Several, quite diverse areas such as mining student feedback in educational domains \cite{Romero2010,Kumar2015}, automatically creating ontologys from text \cite{Missikoff03}, mining student requests for help on programming forums\cite{Joorabchi2016,Wong2013}, mining customer emails/feedback for satisfaction or pinpointing problems with products have all benefited from this automated approach \cite{Liao2010}.  There are many reasons for this explosive growth but the main factor is that the majority of human knowledge and experience is in the form of the written word and not structured databases (see figure \ref{volume}) \cite{Bose2017}. This presents some problems as the information contained in natural language statements is difficult to map to the rectangular/tidy data expected by machine learning and statistical algorithms \cite{Whickham2011}. 
+
+%%%%%%%%%%%%%%%%% Figure %%%%%%%%%%%%%%%%
+\begin{figure}[ht]
+%\epsfysize=4.0cm \leavevmode
+  \begin{center}
+ \includegraphics[width=12cm,height=8cm]{/LaTex/UX/TMsystem.pdf} % OK
+  \end{center}
+\special{center} \caption{System overview: data download, preprocessing and model building}
+\label{system}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In recent years, usability and the delivery of an appropriate user experience has become a key determinant of success for digital products and services; particularly within the computer games industry.  Typically, usability and the user experience are evaluated through two broad approaches to evaluation: analytical methods and empirical methods.   Analytical approaches to evaluation, do not involve users and include popular techniques such as heuristic evaluation \cite{Nielsen1993}.  
+
+
+These techniques require that experts use their knowledge of usability principles to inspect the product in order to identify likely usability problems.  However, while these methods are fast and relatively inexpensive to run, they have been widely criticised because of their lack of predictive power: many issues identified by experts never reveal themselves in actual use.  Empirical methods involve the collection of data from real users, either in laboratory based usability tests where users are asked to complete representative tasks and problems in user are observed and field studies where researchers observe interactions with technologies in their context of use.  These methods are considered to be more robust, however they are more expensive and take considerably longer than inspection approaches \cite{McDonald2013}.
+
+Our overall system operation is highlighted by figure \ref{system}. The process is initiated by downloading the users posts which is the basic unit of data. This is a user-submitted text message enclosed into a block containing the user's details and the date and time it was submitted. Posts are usually short but in fact can vary in size as users communicate to previous posters, often providing detailed information to assist other members. The posts can usually edited or deleted my members. The posts have a certain structure called threads where the original poster (OP) creates a topic title. This first post creates the thread and subsequent replies to this post follow in logical order.  The usual forum etiquette requires that subsequent posts should be on-topic and not to deviate to other subjects or issues, however this is often disregarded. Other useful information include the total count of each user's posts count.
+The text mining process involves entity/keyword  extraction and is shown in greater detail in figure \ref{textmine} \cite{Nahm02}.
+
+
+The R code used to perform the analysis and the datasets we have used are freely available on GitHub from: {\bf https://github.com/kenmcgarry/TextMiner}
+
+The remainder of this paper is structured as follows; section two describes our methods, indicating the types of  data used and how we download and preprocessed it, along with the  computational statistics techniques used to model this data, section three presents the results, section four provides the discussion and finally section five summarizes the conclusions and future work.
+
+
+\section{Methods}
+Referring to the system diagram presented in figure \ref{system}, we have used the following R packages, the TM package by Feinerer which contains a comprehensive set of functions for creating a corpus \cite{Feinerer2008}. The RVEST package enables web page scraping of HTML documents creating data structures suitable for parsing (https://github.com/hadley/rvest). The posts are downloaded using special HTML functions from the RVEST package that remove the embedded structural information. The main URL with the OP topic is cut and pasted from a browser into our R code, but subsequent pages (each containing 25 posts) are automatically downloaded.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[h]
+	\centering
+	\begin{minipage}{0.40\textwidth}
+		\centering
+		\includegraphics[width=5cm,height=6cm]{/LaTex/UX/textmine.jpg} % first figure itself
+		\centering \caption{Overview of data preprocessing  prior to analysis.}
+		\label{textmine}
+	\end{minipage} \hfill
+	\begin{minipage}{0.40 \textwidth}
+		\centering
+		\includegraphics[width=6cm,height=6cm]{/LaTex/UX/volume.jpg} % second figure itself
+		\centering \caption{Volume of unstructured to structured data}
+		\label{volume}
+	\end{minipage}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In order to successfully extract the users posts we need to know where in the HTML code the names for each CSS (cascading style sheet) node in the webpage. This unfortunately, has to be a manual process and we used  http://selectorgadget.com/ to identify the post main body from the myriad of nodes in the web page. The names are created by the web designers and obviously will be different from website to website. Many other nodes identify useful information such as the user names, the dates, the titles, the number of posts each user has submitted. Other nodes provide the usual HTML formating for positioning of text and graphics objects and are not useful to us. Once identified from the rest of the nodes, the text nodes  of the posts are preprocessed by removing whitespace, newlines, tabs, punctuation, and any special embedded characters.
+
+A more detailed view of the text mining process is presented in figure \ref{textmine}, the next process is to remove stopwords, and to stem the document. This involves removing non informative words such as ``if'' , ``and'', ``then'' etc. Stemming simply replaces similar words with their common root e.g. ``walked'', ``walking'' and ``walker'' become ``walk''. This simplifies the number of tokens required for text mining without losing any meaning. 
+
+Sentiment analysis is conducted by the sentimentR package, we group the posts according to their time stamp and if there are any trends or patterns that occur over time these should be identified. It is highly likely that when a game is first introduced it may have either bugs or features that the users are unfamiliar with or have difficulties with and thus posts may have an overall negative sentiment. This process is based on single words without any regard for context or negation i.e. ``I am not happy'' would be identified as positive statement rather than negative. We use the Bing lexicon for a list of positive and negative sentiment words  \cite{Hu2004}.
+
+We then take a more detailed approach whereby sentence level manipulation is implemented so negation and context may be better understood. The great challenge in text mining user posts from a gaming forum is that many of the words that would be normally associated as negative by the lexicon are in fact either neutral or positive because of the context of a violent shooting game.
+
+
+We selected a set of keywords deemed important enough to uncover user issues and problems based on their occurrences highlighted by the wordcloud. Algorithm 1, operates by  searching for our list of keywords for their occurrences in the corpus of posts. We chose a cutoff parameter based on heuristic experimentation and 50 was deemed to be a useful number. Complex network statistics were calculated for each keyword individually and then globally with all networks of keywords joined together.
+
+\begin{algorithm}
+\caption{User keyword search/identification algorithm}\label{alg1}
+\begin{algorithmic}[1]
+\Procedure{SearchKeywords}{$keywordlist,Corpus$}\Comment{keywords from wordcloud}
+   \State{\textit{\bf do initialize}}
+   \State $knum \gets \mbox {get number of keywords in list}$
+   \State$i = 1$
+   \State$i_w =0$\Comment{Words co-occurring with keyword $i$}
+   \State$CUTOFF =50$\Comment{Value determined heuristically}
+    \State{\textit{\bf end initialize}}  \\
+   \For{\textit{$i \leq knum$}}
+           \State \textit{$i_w \gets Corpus$}\Comment{all co-occurring words for $i_w$ in Corpus}
+           \State \texttt{$wcount[i] \gets \mbox{get number of words}$}
+            \If{$wcount [i] > \textit{CUTOFF}$}
+            \State \texttt{$Cw[i] \gets i_w$}\Comment{keep these words  in new structure}
+            \EndIf
+   		   \For{\textit{$j \leq knum$}}
+                   \State \textit{$Cs[j] \gets CalcNetworkStatistics(Cw[j])$  }\Comment{call function for statistics of $Cw$}
+                \EndFor
+      \EndFor  
+    \State \textit{$GCs \gets CalcNetworkStatistics(Cw)$  }\Comment{call function for global statistics of $Cw$}  
+   \State \textbf{return} $Cw, Cs, GCs$\Comment{Return top keywords with local and global statistics}
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+In algorithm 2, we calculate suitable complex networks statistics based on graph theory. Several are calculated but the most informative are degree centrality, betweenness and hubness. Graph theoretic methods can be applied to any discipline where the entities of interest are linked together through various associations or relationships.  Quite diverse application areas such as social network analysis and biological networks are particularly suited to the mathematics of graph construction, traversal and inferencing. A graph G = (V, E) consists of a set of nodes often called vertices V and a set of links called edges E \cite{Freeman1979,Barabasi2004,Barabasi2011}.
+
+\begin{itemize}
+\item The simplest of all measures is degree centrality (DC).  DC(i) is the number of edges present upon node $i$, i.e. the number of other proteins that protein interacts with.  Closeness centrality:
+This measure is the closeness centrality (CC). The closeness centrality of protein i is the sum of
+graph-theoretic distances from all other proteins in the PPI network, where the distance $d(v_i, v_j)$ from one protein $i$ to another $j$ is defined as the number of links in the shortest path from one to the other. The closeness centrality of protein $i$ in a PPI network is given by the following expression:
+
+\begin{equation}\label{closeness}
+     CC(v_i) =  \frac{N - 1}{\sum_{j} d(v_i,v_j)}
+\end{equation}
+
+\item Betweenness centrality:  Is a measure of the degree of influence a protein has in facilitating communication between other protein pairs and is defined as the fraction of shortest paths going through a given node. If $p(v_i, v_j)$ is the number of shortest paths from protein $i$ to protein $j$, and $p(v_i, v_k, v_j)$ is the number of these shortest paths that pass through protein $k$ in the PPI network, then the BC of node k is given by: 
+
+\begin{equation}\label{betweenness}
+     BC (v_k) =  \sum_{i} \sum_{j} \frac{p(v_i,v_j,v_k)}{p(v_i,v_j)}, i \neq j \neq k
+\end{equation}
+\end{itemize}
+
+\begin{algorithm}
+\caption{Complex network statistics for $Cw$}\label{alg2}
+\begin{algorithmic}[1]
+\Procedure{CalcNetworkStatistics}{$Cw$}\Comment{Initialisation}
+\State $\textit{stringlen} \gets \text{length of }\textit{string}$
+\State $i \gets \textit{patlen}$
+\If {$i > \textit{stringlen}$} \Return false\Comment{Error trapping}
+\EndIf
+\State $j \gets \textit{patlen}$
+\If {$\textit{string}(i) = \textit{path}(j)$}
+\State $j \gets j-1$.
+\State $i \gets i-1$.
+\State \textbf{goto} \emph{loop}.
+\State \textbf{close};
+\EndIf
+\State $i \gets i+\max(\textit{delta}_1(\textit{string}(i)),\textit{delta}_2(j))$.
+\State \textbf{goto} \emph{top}.
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+
+\section{Results}
+The wordcloud presented in figure \ref{wc1} highlights the relative frequency of the keywords, the larger the size of a word indicates it occurs quite often.  This type of plot is useful for a quick scan of frequently occurring themes or issues. However, it is simply a ``bag of words'' method without any context of word order or relationships between them. It is an attractive and highly visual way of representing data but gives little in way of quantitative analysis. The only additional means is to organise words in terms of sentiment as per figure \ref{wc2}. Here we can see the positive and negative classifications as per the lexicon (Bing) we used \cite{Hu2004}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[h]
+	\centering
+	\begin{minipage}{0.350\textwidth}
+		\centering
+		\includegraphics[width=7cm,height=7cm]{/LaTex/UX/wordcloud.jpeg} % first figure itself
+		\centering \caption{Wordcloud for user posts to the {\it Feature Requests } topic.}
+		\label{wc1}
+	\end{minipage} \hfill
+	\begin{minipage}{0.35 \textwidth}
+		\centering
+		\includegraphics[width=7cm,height=7cm]{/LaTex/UX/wordcloud2.jpeg} % second figure itself
+		\centering \caption{Wordcloud for {\it All Posts} organized by sentiment}
+		\label{wc2}
+	\end{minipage}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+The next stage is to conduct a sentiment analysis of all the downloaded posts, the posts are in the sequential order they appeared over time.  Table \ref{table1} shows the first 10 posts in the FAQ topic, The index number uniquely identifies each post, with positive and negative  counts, the net is simply the overall sentiment after subtracting the +ve from the -ne sentiments.
+
+% latex table generated in R 3.3.2 by xtable 1.8-2 package
+% Tue May 09 07:57:55 2017
+\begin{table}[h]
+\centering \scriptsize
+\begin{tabular}{rrrrl}
+  \hline
+positive & negative & net & index & topic \\ 
+  \hline
+1.00 & 1.00 & 0.00 & 1.00 & FAQ \\ 
+ 9.00 & 2.00 & 7.00 & 2.00 & FAQ \\ 
+  13.00 & 14.00 & -1.00 & 3.00 & FAQ \\ 
+ 10.00 & 3.00 & 7.00 & 4.00 & FAQ \\ 
+ 8.00 & 1.00 & 7.00 & 5.00 & FAQ \\ 
+9.00 & 10.00 & -1.00 & 6.00 & FAQ \\ 
+ 4.00 & 3.00 & 1.00 & 7.00 & FAQ \\ 
+ 6.00 & 3.00 & 3.00 & 8.00 & FAQ \\ 
+ 15.00 & 10.00 & 5.00 & 9.00 & FAQ \\ 
+19.00 & 10.00 & 9.00 & 10.00 & FAQ \\ 
+   \hline
+\end{tabular} \normalsize
+ \caption{Count of positive and negative words for first 10 posts}
+ \label{table1}
+\end{table}
+
+
+Examining figure \ref{sentiment1} we see the sentiment analysis for the four main topics, we find that the {\it Feature requests} topic is consistently negative in terms of its sentiment. The {\it Developer Tools} topic is generally negative as this contains posts from those trying to modify the game based on their own programming skills user the software development kit. This is a complex and generally frustrating endeavor, and from reading the posts majority of gamers find the task difficult and their efforts do not succeed. The {\it Frequently asked questions} topics starts negative but builds up to a small overall positive sentiment. The {\it Following} topic is very well received as this was the second game in the series with the bugs, glitches and annoying (game spoiling) features were more or less solved.
+
+%%%%%%%%%%%%%%%%% Figure %%%%%%%%%%%%%%%%
+\begin{figure}[hp]
+%\epsfysize=4.0cm \leavevmode
+  \begin{center}
+ \includegraphics[width=14cm,height=9cm]{/LaTex/UX/4topics.pdf} % OK
+  \end{center}
+\special{center} \caption{Sentiment analysis for four main topics}
+\label{sentiment1}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%% Figure %%%%%%%%%%%%%%%%
+\begin{figure}[hp]
+%\epsfysize=4.0cm \leavevmode
+  \begin{center}
+ \includegraphics[width=11cm,height=9cm]{/LaTex/UX/bigram.jpeg} % OK
+  \end{center}
+\special{center} \caption{Most common bi-gram word association pairs}
+\label{wordpairs}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%% Figure %%%%%%%%%%%%%%%%
+\begin{figure}[hp]
+%\epsfysize=4.0cm \leavevmode
+  \begin{center}
+ \includegraphics[width=14cm,height=7cm]{/LaTex/UX/contribution.jpeg} % OK
+  \end{center}
+\special{center} \caption{Word contributions to sentiment}
+\label{words}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%% Figure %%%%%%%%%%%%%%%%
+\begin{figure}[hp]
+%\epsfysize=4.0cm \leavevmode
+  \begin{center}
+ \includegraphics[width=12cm,height=8cm]{/LaTex/UX/sentence.jpg} % OK
+  \end{center}
+\special{center} \caption{Sentence level contributions to sentiment}
+\label{sentiment2}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Discussion}
+Some of the limitations of our study include using only one games forum, we would have to make our software more generic to tackle this. A lot of our efforts in post downloading are manual in nature an dthis would have to be repeated for other forums. It became quite clear early on that the normal lexicon based approach of assigning every word in English a score that is either negative or positive is very inefficient for the this particular application. For example words such as ``scary'', ``damage'', ``enemy'' and ``kill'' are very negative scores but in fact these words are generally expressing satisfaction on the part of the gamers as they are describing what appeals to them in game play. 
+
+\section{Conclusion}
+Overall, the system was able to detect trends in sentiment over time as the gaming product became more mature and bugs/issues were sorted out. However, the usual method of sentiment analysis does give a rather skewed picture of the usability issues. The Graph theoretic statistics provided a better understanding of the usability issues than mere frequency count of individual words. The bi-grams of co-occurring words can now be linked together for a deeper analysis of the issues. As far as we are aware, our approach is novel for detecting patterns or issues in game usability.
+
+% use section* for acknowledgment
+\section*{Acknowledgment}
+The authors would like to thank Julia Silge for her helpful text mining tutorials.
+
+
+
+%\bibliographystyle{plain} %agsm,apsr
+\bibliographystyle{splncs03}
+\bibliography{C:/Latex/kenrefs}
+\end{document}
+
+
