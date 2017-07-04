@@ -75,14 +75,7 @@ wordcloud(myCorpus,scale=c(5,0.5),min.freq=5,max.words=250,random.order=FALSE,ro
 # myCorpus[[20]]$content  # How to access content of parsed posts
 # allposts[20] # Access original post
 
-some_txt<- c("I am very happy at stack overflow, excited, and optimistic.",
-             "I hate statistics, the nasty people, the stupid people, and everybody else I ever met",
-             "I love statistics, I think text mining is wonderful and get excited when data mining",
-             "I am very scared from OP question, annoyed, and irritated.", 
-             "I am completely neutral about blandness.",
-             "Ken is wonderful, Ken is great but Ken gets angry sometimes and very impatient")
 
-#corpus <- Corpus(VectorSource(some_txt)) 
 
 pos <- sum(sapply(myCorpus, tm_term_score, terms_in_General_Inquirer_categories("Positiv")))
 neg <- sum(sapply(myCorpus, tm_term_score, terms_in_General_Inquirer_categories("Negativ")))
